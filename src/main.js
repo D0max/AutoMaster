@@ -13,7 +13,7 @@ app.use(express.json());
 mongoose.connect(dbUrl, mongoOptions, () => {
   app.use('/auth', auth)
 
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.listen(PORT, () => {
     console.log(`app started on ${PORT}`)
