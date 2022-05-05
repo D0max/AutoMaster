@@ -34,6 +34,8 @@ const AuthSchema = new mongoose.Schema({
 });
 
 AuthSchema.methods.checkPassword = function(password){
+  console.log(this.password);
+  console.log(password);
   return bcrypt.compare(password, this.password)
 };
 AuthSchema.methods.createToken = function(username){
@@ -46,8 +48,10 @@ AuthSchema.methods.refreshPassword = function(password) {
 }
 
 AuthSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
   const hash = await bcrypt.hash(this.password, salt);
+  console.log(this.password);
   this.password = hash
   next();
 });
