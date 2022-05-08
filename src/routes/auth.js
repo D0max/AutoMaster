@@ -42,7 +42,6 @@ router.post('/refresh_password', async (req, res) => {
 
 router.post('/email_refresh', async (req, res) => {
   const code = nanoid(5)
-  let testAccount = await nodemailer.createTestAccount();
   const user = await Auth.findOne({username: req.body.username})
 
   let transporter = nodemailer.createTransport({
