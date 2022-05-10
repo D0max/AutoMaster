@@ -10,7 +10,7 @@ router.post('/registration', async (req, res) => {
     const user = new Auth ({
       ...req.body
     })
-    user.createToken(req.body.username)
+    user.createToken(req.body.email)
     await user.save()
 
     res.status(200).send(user)
@@ -22,10 +22,10 @@ router.post('/registration', async (req, res) => {
 
 router.post('/refresh_password', async (req, res) => {
   try {
-    const {old_password, new_password, username} = req.body
+    const {old_password, new_password, email} = req.body
     if (!username) return res.send(403).send({message: 'User is not in the database'})
 
-    const user = await Auth.findOne({username})
+    const user = await Auth.findOne({email})
     const isMatch = await user.checkPassword(old_password);
     if (!isMatch) return res.status(400).send({message: 'Password is wrong'})
 
@@ -42,7 +42,7 @@ router.post('/refresh_password', async (req, res) => {
 
 router.post('/email_refresh', async (req, res) => {
   const code = nanoid(5)
-  const user = await Auth.findOne({username: req.body.username})
+  const user = await Auth.findOne({email: req.body.email})
 
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -85,7 +85,7 @@ router.put('/email_refresh', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-  const user = await Auth.findOne({username: req.body.username})
+  const user = await Auth.findOne({email: req.body.email})
   if (!user) return res.status(403).send({message: 'User not found'})
 
   const isMatch = await user.checkPassword(req.body.password);

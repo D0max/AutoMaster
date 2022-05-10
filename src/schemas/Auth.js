@@ -9,19 +9,20 @@ const env = dotenv.config().parsed
 const SALT_WORK_FACTOR = 10;
 
 const AuthSchema = new mongoose.Schema({
-  username: {
+  email: {
     type: String,
     required: true,
     unique: true,
     validate: {
       validator: async function (value) {
-        if (!this.isModified('username')) return;
-        const user = await Auth.findOne({username: value});
+        if (!this.isModified('email')) return;
+        const user = await Auth.findOne({email: value});
         if (user) throw new Error();
       },
       message: 'This name is already taken'
     }
   },
+  username: String,
   password: {
     type: String,
     required: true
@@ -38,8 +39,8 @@ AuthSchema.methods.checkPassword = function(password){
   console.log(password);
   return bcrypt.compare(password, this.password)
 };
-AuthSchema.methods.createToken = function(username){
-  const token = jwt.sign({username}, env.TOKEN_SECRET, { expiresIn: '3d' })
+AuthSchema.methods.createToken = function(email){
+  const token = jwt.sign({email}, env.TOKEN_SECRET, { expiresIn: '3d' })
   return this.token = `Bearer ${token}`
 };
 
@@ -61,7 +62,7 @@ AuthSchema.set('toJSON', {
     delete ret.password;
     delete ret._id;
     delete ret.__v;
-    delete ret.username;
+    delete ret.email;
     delete ret.code;
     return ret;
   }
