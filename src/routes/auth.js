@@ -48,8 +48,8 @@ router.post('/email_refresh', async (req, res) => {
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'sobolezm@gmail.com',
-      pass: 'sobolev1337',
+      user: '',
+      pass: '',
     },
   });
 
