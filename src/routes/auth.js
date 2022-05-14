@@ -1,9 +1,12 @@
+
 const express = require('express')
 const nodemailer = require('nodemailer')
+const dotenv = require("dotenv")
 const {nanoid} = require('nanoid')
 const router = express.Router()
 
 const Auth = require('../schemas/Auth')
+const env = dotenv.config().parsed
 
 router.post('/registration', async (req, res) => {
   try {
@@ -43,17 +46,20 @@ router.post('/refresh_password', async (req, res) => {
 router.post('/email_refresh', async (req, res) => {
   const code = nanoid(5)
   const user = await Auth.findOne({email: req.body.email})
+  console.log(user);
 
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: 'sobolezm@gmail.com',
-      pass: 'sobolev1337',
+      user: env.EMAIL,
+      pass: env.EMAIL_PASS,
     },
   });
 
   let info = await transporter.sendMail({
-    from: 'sobolezm@gmail.com', // sender address
+    from: process.env.EMAIL, // sender address
     to: req.body.email,
     subject: "AutoMaster", // Subject line
     text: "Recovery code", // plain text body

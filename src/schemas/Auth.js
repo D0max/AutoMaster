@@ -34,6 +34,7 @@ const AuthSchema = new mongoose.Schema({
 });
 
 AuthSchema.methods.checkPassword = function(password){
+  console.log(bcrypt.compare(password))
   return bcrypt.compare(password, this.password)
 };
 AuthSchema.methods.createToken = function(email){
