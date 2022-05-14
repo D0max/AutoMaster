@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-
 const bcrypt = require('bcrypt');
 
-const env = dotenv.config().parsed
 const SALT_WORK_FACTOR = 10;
 
 const AuthSchema = new mongoose.Schema({
@@ -37,7 +34,7 @@ AuthSchema.methods.checkPassword = function(password){
   return bcrypt.compare(password, this.password)
 };
 AuthSchema.methods.createToken = function(email){
-  const token = jwt.sign({email}, env.TOKEN_SECRET, { expiresIn: '3d' })
+  const token = jwt.sign({email}, process.env.TOKEN_SECRET, { expiresIn: '3d' })
   return this.token = `Bearer ${token}`
 };
 
