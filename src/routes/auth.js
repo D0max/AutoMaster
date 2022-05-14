@@ -1,12 +1,9 @@
-
 const express = require('express')
 const nodemailer = require('nodemailer')
-const dotenv = require("dotenv")
 const {nanoid} = require('nanoid')
 const router = express.Router()
 
 const Auth = require('../schemas/Auth')
-const env = dotenv.config().parsed
 
 router.post('/registration', async (req, res) => {
   try {
@@ -53,8 +50,8 @@ router.post('/email_refresh', async (req, res) => {
     port: 465,
     secure: true,
     auth: {
-      user: env.EMAIL,
-      pass: env.EMAIL_PASS,
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
