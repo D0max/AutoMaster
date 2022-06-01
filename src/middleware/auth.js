@@ -5,7 +5,6 @@ const auth = async (req, res, next) => {
   if (!Token) return res.status(401).send({'error': 'Token not provided'});
 
   const user = await Users.findOne({token: Token});
-  console.log('token', user);
   if (!user) return res.status(401).send({'error': 'Token incorrect'});
 
   req.user = user;

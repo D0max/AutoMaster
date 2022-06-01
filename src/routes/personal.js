@@ -6,16 +6,20 @@ const Auth = require('../schemas/Auth')
 const roles = require('../utils/roles')
 
 router.get('/', [auth, permit(roles.MANAGER, roles.ADMIN)], async (req, res) => {
-  const {role} = req.user
-  const personal = await Auth.find()
+  const {role, token} = req.user
+  console.log(!!Object.keys(req.query).length);
   try {
-    if (role.includes(roles.MANAGER)){
-      const filterPerson = personal.filter(({role}) => (
-        role.includes(roles.DEFAULT)
-      ))
-      res.status(200).json(filterPerson)
+    if (!!Object.keys(req.query).length) {
+      const personal = await Auth.find()
+      if (role.includes(roles.MANAGER)){
+        const filterPerson = personal.filter(({role}) => (
+          role.includes(roles.DEFAULT)
+        ))
+        res.status(200).json(filterPerson)
+      }
+      res.status(200).json(personal)
     }
-    res.status(200).json(personal)
+    await Auth.findOne({token}).then(result => res.status(200).json(result))
   } catch (e) {
 
   }
