@@ -4,18 +4,35 @@ const {nanoid} = require('nanoid')
 const router = express.Router()
 
 const Auth = require('../schemas/Auth')
+const {
+  authorizationValid,
+  validationResult,
+  errorsValidFunction
+} = require('../check')
 
-router.post('/registration', async (req, res) => {
+
+router.post('/registration', [authorizationValid], async (req, res) => {
   try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array()
+      })
+    }
+
     const user = new Auth ({
-      ...req.body
+      ...req.body,
+      username: req.body.username || null,
+      age: null,
+      code: null,
+      profession: null,
+      experience: null
     })
     user.createToken(req.body.email)
     await user.save()
 
-    res.status(200).send(user)
+    res.status(200).json({token: user.token})
   } catch (e) {
-    console.log(e);
     res.status(409).send({message: 'Username has been taken'})
   }
 })
@@ -43,7 +60,6 @@ router.post('/refresh_password', async (req, res) => {
 router.post('/email_refresh', async (req, res) => {
   const code = nanoid(5)
   const user = await Auth.findOne({email: req.body.email})
-  console.log(user);
 
   let transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -87,19 +103,27 @@ router.put('/email_refresh', async (req, res) => {
   await user.save()
 })
 
-router.post('/login', async (req, res) => {
-  const user = await Auth.findOne({email: req.body.email})
-  if (!user) return res.status(403).send({message: 'User not found'})
+router.post('/login', [authorizationValid], async (req, res) => {
+  try {
+    errorsValidFunction(req, res)
 
-  const isMatch = await user.checkPassword(req.body.password);
+    const user = await Auth.findOne({email: req.body.email})
+    if (!user) return res.status(403).send({message: 'User not found'})
 
-  if (!isMatch) {
-    return res.status(400).send({error: `Password is wrong`});
+    const isMatch = await user.checkPassword(req.body.password);
+
+    if (!isMatch) {
+      return res.status(400).send({error: `Password is wrong`});
+    }
+
+    user.createToken();
+    await user.save();
+    res.status(200).json({token: user.token})
+
+  } catch (e) {
+    res.status(500).json(e)
   }
 
-  user.createToken();
-  await user.save();
-  res.send(user)
 })
 
 

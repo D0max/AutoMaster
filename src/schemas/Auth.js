@@ -28,6 +28,20 @@ const AuthSchema = new mongoose.Schema({
     required: true
   },
   code: String,
+  role: {
+    type: String,
+    required: true,
+    default: 'default',
+    enum: ['default', 'manager', 'admin']
+  },
+  age: Number,
+  profession: String,
+  create_at: {
+    type: String,
+    default: new Date().toISOString()
+  },
+  update_date: String,
+  experience: String
 });
 
 AuthSchema.methods.checkPassword = function(password){
@@ -53,10 +67,9 @@ AuthSchema.pre('save', async function (next) {
 AuthSchema.set('toJSON', {
   transform: (doc, ret, options) =>{
     delete ret.password;
-    delete ret._id;
     delete ret.__v;
-    delete ret.email;
     delete ret.code;
+    delete ret.token
     return ret;
   }
 });
